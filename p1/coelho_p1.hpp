@@ -4,13 +4,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <ostream>
+#include <string>
 
 using namespace std;
+
+struct state;
+struct transition;
 
 class turing_machine{
     public:
         turing_machine();
+        turing_machine(string, char*, int);
+        void read_input(string);
+        string execute();
     private:
+        vector<state> states;
+        vector<transition> transitions;
+        char* input;
+        int num_transitions;
 };
 
 #endif
