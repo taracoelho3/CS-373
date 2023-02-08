@@ -20,7 +20,7 @@ class turing_machine{
         turing_machine();
         turing_machine(string, char*, int);
         void read_input(string);
-        string execute();
+        void execute();
     private:
         vector<state> states;
         vector<transition> transitions;

@@ -91,45 +91,70 @@ void turing_machine::read_input(string filename){
     }
 }
 
-string turing_machine::execute(){
-    string result = "";
+void turing_machine::execute(){
     string tape_head_move, replace_char;
     vector<char> tape;
-    int tape_head_index = 0, curr_state_num = 0;
+    int tape_head_index = 0, curr_state_num = 0, transition_counter = 0;
     state curr_state = states.at(0);
 
-    for(int i = 0; i < 20; i++){
+    //initialize tape with blank characters
+    for(int i = 0; i < 100; i++){
         tape.push_back('_');
     }
 
+    //replace beginning tape with input characters
     for(int i = 0; i < strlen(input); i++){
         tape.at(i) = input[i];
     }
     
-    while(curr_state.action != "accept"){
+    while(curr_state.action != "accept"){   
+
+    //quit if max transitions exceeded
+    if(transition_counter > this->num_transitions){
+        for(int i = tape_head_index; i < tape.size(); i++){
+            if(tape.at(i) != '_'){
+                cout << tape.at(i);
+            }
+            
+        }
+        cout << " quit" << endl;
+        return;
+    } 
+
+    //if there is an existing next state for the symbol...
     if(curr_state.accepts(tape.at(tape_head_index)) == true){
-        //gather information from current state
         /*cout << "changing from " << curr_state.state_num << " to next state " << curr_state.get_transition(tape.at(tape_head_index)).r << endl;
         cout << "replacing " << tape.at(tape_head_index) << " with " << curr_state.get_transition(tape.at(tape_head_index)).b << endl;
         cout << "tape head moving " << curr_state.get_transition(tape.at(tape_head_index)).x << endl;
         cout << "-------END TRANSITION-------" << endl;
         cout << endl;*/
  
+        //gather information from current state
         curr_state_num = curr_state.get_transition(tape.at(tape_head_index)).r;
         tape_head_move = curr_state.get_transition(tape.at(tape_head_index)).x;
         tape.at(tape_head_index) = curr_state.get_transition(tape.at(tape_head_index)).b;
 
         //now change states to next state
         curr_state = states.at(curr_state_num);
+        transition_counter++;
             
+        //check if tape head moves
         if(tape_head_move.compare("R") == 0){
-            //cout << "moving tape head right" << endl;
             tape_head_index++;
         }
         if(tape_head_move.compare("L") == 0){
-            //cout << "moving tape head left" << endl;
             tape_head_index--;
         }
+    }
+    //no possible transition state, reject
+    else{
+        for(int i = tape_head_index; i < tape.size(); i++){
+            if(tape.at(i) != '_'){
+                cout << tape.at(i);
+            }
+        }
+        cout << " reject" << endl;
+        return;
     }
         if(curr_state.action == "accept"){
             int i = 0;
@@ -140,8 +165,7 @@ string turing_machine::execute(){
             cout << " accept" << endl;
         }
     }
-
-    return result;
+    return;
 }
 
 int main(int argc, char *argv[]){
@@ -156,6 +180,5 @@ int main(int argc, char *argv[]){
         input = argv[2];
         num_transitions = atoi(argv[3]);
         turing_machine test(file, input, num_transitions);
-
     }
 }
