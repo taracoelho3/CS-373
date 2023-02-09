@@ -50,7 +50,7 @@ turing_machine::turing_machine(string file, char* input, int num_transitions){
 }
 
 void turing_machine::initialize_states(){
-    for(int i = 0; i < 1000; i++){
+    for(int i = 0; i < 1001; i++){
         state new_state;
         new_state.state_num = i;
         new_state.action = "";
