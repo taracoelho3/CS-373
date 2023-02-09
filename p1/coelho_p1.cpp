@@ -37,16 +37,26 @@ struct state{
     }
 };
 
-
 turing_machine::turing_machine(){
     //empty constructor
 }
 
 turing_machine::turing_machine(string file, char* input, int num_transitions){
+    initialize_states();
     read_input(file);
     this->input = input;
     this->num_transitions = num_transitions;
     execute();
+}
+
+void turing_machine::initialize_states(){
+    for(int i = 0; i < 1000; i++){
+        state new_state;
+        new_state.state_num = i;
+        new_state.action = "";
+        states.push_back(new_state);
+    }
+    return;
 }
 
 void turing_machine::read_input(string filename){
@@ -60,14 +70,12 @@ void turing_machine::read_input(string filename){
 
         if(behavior == "state"){
             string action = "";
-            int state_num;
+            int state_num = 0;
             s >>  state_num >> action;
-
-            state new_state;
-            new_state.state_num = state_num;
-            new_state.action = action;
-
-            states.push_back(new_state);
+            
+            if(state_num < 1001){
+                states.at(state_num).action = action;
+            }
         }
         if(behavior == "transition"){
             int q, r;
@@ -95,7 +103,14 @@ void turing_machine::execute(){
     string tape_head_move, replace_char;
     vector<char> tape;
     int tape_head_index = 0, curr_state_num = 0, transition_counter = 0;
-    state curr_state = states.at(0);
+    state curr_state;
+
+    //find start state
+    for(int i = 0; i < states.size(); i++){
+        if(states.at(i).action == "start"){
+            curr_state = states.at(i);
+        }
+    }
 
     //initialize tape with blank characters
     for(int i = 0; i < 100; i++){
@@ -111,7 +126,7 @@ void turing_machine::execute(){
 
     //quit if max transitions exceeded
     if(transition_counter > this->num_transitions){
-        for(int i = tape_head_index; i < tape.size(); i++){
+        for(int i = tape_head_index + 1; i < tape.size(); i++){
             if(tape.at(i) != '_'){
                 cout << tape.at(i);
             }
@@ -120,6 +135,21 @@ void turing_machine::execute(){
         cout << " quit" << endl;
         return;
     } 
+
+    if(tape_head_index < 0){
+        cout << "invalid tape index, moved too far to the left" << endl;
+        return;
+    }
+
+    if(curr_state.action == "reject"){
+        for(int i = tape_head_index; i < tape.size(); i++){
+            if(tape.at(i) != '_'){
+                cout << tape.at(i);
+            }
+        }
+        cout << " reject" << endl;
+        return;
+    }
 
     //if there is an existing next state for the symbol...
     if(curr_state.accepts(tape.at(tape_head_index)) == true){

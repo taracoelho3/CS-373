@@ -19,6 +19,7 @@ class turing_machine{
     public:
         turing_machine();
         turing_machine(string, char*, int);
+        void initialize_states();
         void read_input(string);
         void execute();
     private:
